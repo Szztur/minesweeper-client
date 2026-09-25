@@ -1,4 +1,4 @@
-package icesi.truecel.minesweeperclient.model;
+package co.icesi.buscaminas.client.model;
 
 import java.io.Serializable;
 
@@ -66,6 +66,6 @@ public class Cell implements Serializable {
     if (isMarked) {
       return "\u001B[33mM\u001B[0m";
     }
-    return hide && !showAll ? "." : (isLandMine ? "\u001B[31m*\u001B[0m" : value + "");
+    return hide && !showAll ? "." : (isLandMine ? "\u001B[31m*\u001B[0m" : (value == 0 ? " " : value + ""));
   }
 }

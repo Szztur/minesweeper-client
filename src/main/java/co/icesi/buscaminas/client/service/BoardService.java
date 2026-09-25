@@ -1,12 +1,15 @@
-package icesi.truecel.minesweeperclient.service;
-import icesi.truecel.minesweeperclient.connection.ServerService;
-import icesi.truecel.minesweeperclient.connection.dto.CellService;
+package co.icesi.buscaminas.client.service;
 
-import icesi.truecel.minesweeperclient.model.BoardGame;
-import icesi.truecel.minesweeperclient.model.Cell;
+
+import co.icesi.buscaminas.client.connection.ServerService;
+import co.icesi.buscaminas.client.connection.dto.CellService;
+import co.icesi.buscaminas.client.model.BoardGame;
+import co.icesi.buscaminas.client.model.Cell;
 
 import java.util.Scanner;
 
+
+import java.util.Scanner;
 
 public class BoardService {
     private final ServerService serverConnector;
@@ -55,14 +58,20 @@ public class BoardService {
         boardGame.printBoard();
     }
 
-
     public void interact() {
-        refreshBoard();
         try (Scanner scanner = new Scanner(System.in)) {
+            try {
+                refreshBoard();
+            } catch (RuntimeException e) {
+                System.out.println("Could not load the initial board: " + e.getMessage());
+                return;
+            }
+
             boolean playing = true;
             while (playing) {
                 if (boardGame.getBoard() == null) {
-                    throw new IllegalStateException("The server returned no board");
+                    System.out.println("No board available. Exiting.");
+                    break;
                 }
 
                 int rows = boardGame.getBoard().length;
@@ -79,40 +88,41 @@ public class BoardService {
                 System.out.println("type s to reveal everything and end the game");
 
                 String command = scanner.next();
-                if (command.equalsIgnoreCase("u")) {
-                    refreshBoard();
-                    continue;
-                }
-                if (command.equalsIgnoreCase("i")) {
-                    int newRows = scanner.nextInt();
-                    int newColumns = scanner.nextInt();
-                    int newMines = scanner.nextInt();
-                    initBoard(newRows, newColumns, newMines);
-                    continue;
-                }
-                if (command.equalsIgnoreCase("s")) {
-                    showAllBoard();
-                    printBoard();
-                    System.out.println("Board revealed. Game ended.");
-                    playing = false;
-                    continue;
-                }
-
-                int operation;
-                try {
-                    operation = Integer.parseInt(command);
-                } catch (NumberFormatException e) {
-                    System.out.println("Unknown operation: " + command);
-                    continue;
-                }
-                int row = scanner.nextInt();
-                int column = scanner.nextInt();
-                if (row < 0 || column < 0) {
-                    playing = false;
-                    continue;
-                }
 
                 try {
+                    if (command.equalsIgnoreCase("u")) {
+                        refreshBoard();
+                        continue;
+                    }
+                    if (command.equalsIgnoreCase("i")) {
+                        int newRows = scanner.nextInt();
+                        int newColumns = scanner.nextInt();
+                        int newMines = scanner.nextInt();
+                        initBoard(newRows, newColumns, newMines);
+                        continue;
+                    }
+                    if (command.equalsIgnoreCase("s")) {
+                        showAllBoard();
+                        printBoard();
+                        System.out.println("Board revealed. Game ended.");
+                        playing = false;
+                        continue;
+                    }
+
+                    int operation;
+                    try {
+                        operation = Integer.parseInt(command);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Unknown operation: " + command);
+                        continue;
+                    }
+                    int row = scanner.nextInt();
+                    int column = scanner.nextInt();
+                    if (row < 0 || column < 0) {
+                        playing = false;
+                        continue;
+                    }
+
                     if (operation == 2) {
                         markCell(row, column);
                     } else if (operation == 1) {
@@ -128,14 +138,24 @@ public class BoardService {
                     } else {
                         System.out.println("Unknown operation: " + operation);
                     }
+
                 } catch (RuntimeException e) {
-                    System.out.println(e.getMessage());
-                    playing = false;
+                    // Cubre errores de red (timeout, servidor caído),
+                    // status "ERROR" del servidor, o board nulo/inválido.
+                    System.out.println("Error: " + e.getMessage());
+                    // No forzamos playing = false aquí: un error puntual
+                    // (p. ej. timeout momentáneo) no debería tumbar la partida.
+                    // Si prefieres terminar el juego ante cualquier error, descomenta:
+                    // playing = false;
                 }
             }
 
-            showAllBoard();
-            printBoard();
+            try {
+                showAllBoard();
+                printBoard();
+            } catch (RuntimeException e) {
+                System.out.println("Could not reveal the final board: " + e.getMessage());
+            }
             System.out.println("exit");
         }
     }

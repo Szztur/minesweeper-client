@@ -1,7 +1,9 @@
-package icesi.truecel.minesweeperclient;
-import icesi.truecel.minesweeperclient.connection.ServerService;
-import icesi.truecel.minesweeperclient.model.BoardGame;
-import icesi.truecel.minesweeperclient.service.BoardService;
+package co.icesi.buscaminas.client;
+
+import co.icesi.buscaminas.client.connection.ServerService;
+import co.icesi.buscaminas.client.model.BoardGame;
+import co.icesi.buscaminas.client.service.BoardService;
+
 import java.io.IOException;
 
 public class Main {

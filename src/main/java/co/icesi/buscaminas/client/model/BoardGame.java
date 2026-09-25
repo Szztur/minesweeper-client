@@ -1,4 +1,4 @@
-package icesi.truecel.minesweeperclient.model;
+package co.icesi.buscaminas.client.model;
 
 import java.util.Random;
 

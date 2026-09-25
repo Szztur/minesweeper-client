@@ -1,5 +1,6 @@
-package icesi.truecel.minesweeperclient.connection.dto;
-import icesi.truecel.minesweeperclient.model.Cell;
+package co.icesi.buscaminas.client.connection.dto;
+
+import co.icesi.buscaminas.client.model.Cell;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 @Data
